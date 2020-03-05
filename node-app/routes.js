@@ -8,8 +8,8 @@ var Users = require('./model/Users.js');
 function validUser(req, res, next) {
 	try {
 		if((req.method !="OPTIONS" && req.headers.authorization)){
-			console.log("req.url",req.url);
-			console.log("req.method",req.method);
+			//console.log("req.url",req.url);
+			//console.log("req.method",req.method);
 			if((req.url.indexOf('auth/login')>-1)){
 				commonFunctions.setSuccess({}, "Successfull",function (response) {
 					return res.status(response.status).json(response);
@@ -39,7 +39,7 @@ function validUser(req, res, next) {
 			});
 		}
 	} catch (err) {
-		console.log(err);
+	//	console.log(err);
 		commonFunctions.setAuthFailedError("validUser Access to: '" + req.baseUrl + "' denied. User is invalid",function (response) {
 			return res.status(response.status).json(response);
 		});
