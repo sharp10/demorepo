@@ -5,33 +5,119 @@ var commonFunctions = require('../config/CommonFunctions.js');
 var jwt = require('jwt-simple');
 var accessTokenLifetime = 86400 * 48;
 
-exports.localLogin= function(req,res){
+exports.getNotes= function(req,res){
 	//var user_id = res.locals.user_id;
-	var username = req.body.username;
-	var password = req.body.password;
-	Notes.findOne({username:username}).exec(function(err,data){
-		if(data && data.password!=''){
-			var authenthicate = commonFunctions.authenticate(password,data.password);
-			if(authenthicate == true){
-				var userData = {
-					user_id:data._id,
-					display_name:data.display_name,
-					username:data.username
-				}
-				var expireDate = new Date();
-				expireDate.setTime(expireDate.getTime() + accessTokenLifetime * 1000);
+	try{
+		Notes.find().exec(function(err,data){
+			commonFunctions.setSuccess(data, 'Data Retrived Successfully',function (response) {
+				return res.status(response.status).json(response);
+			});
+		})
+	}catch(e){
+		commonFunctions.setFatalError(e,function (response) {
+			return res.status(response.status).json(response);
+		});
+	}
+}
 
-				var token = jwt.encode({
-					user: userData,
-					subject: 'TMO',
-					exp: expireDate
-				}, 'TMO');				
-				commonFunctions.sendResults(res, true,{token:token}, 'Token Has been successfully made');
-			}else{
-				commonFunctions.sendResults(res, false,{token:''}, 'username/Password is wrong');
-			}
-		}else{
-			commonFunctions.sendResults(res, false,{token:''}, 'username / Password is wrong');
+exports.saveNotes= function(req,res){
+	try{
+		var mappedErrors = {};
+
+        if (req.body != "") {
+            req.checkBody('title', 'title is required').notEmpty();
+
+			mappedErrors = req.validationErrors(true);
 		}
-	})
+		if (mappedErrors == false) {
+			var saveData = req.body;
+			var addNotes = new Notes(saveData);
+			addNotes.save(function (err, result) {	
+				if(err){
+					commonFunctions.setFatalError(err,function (response) {
+						return res.status(response.status).json(response);
+					});
+				}else{
+					commonFunctions.setSuccess({}, 'Data Retrived Successfully',function (response) {
+						return res.status(response.status).json(response);
+					});
+				}
+			});
+		}else {
+			commonFunctions.setValidationError(mappedErrors, function (response) {
+				res.status(response.status).json(response);
+			});
+		}
+	}catch(e){
+		commonFunctions.setFatalError(e,function (response) {
+			return res.status(response.status).json(response);
+		});
+	}
+}
+
+exports.updateNotes= function(req,res){
+	try{
+		var mappedErrors = {};
+
+        if (req.body != "") {
+            req.checkBody('title', 'title is required').notEmpty();
+			req.checkParams('id', 'Note Id is required').notEmpty();
+			mappedErrors = req.validationErrors(true);
+		}
+		if (mappedErrors == false) {
+			var saveData = req.body;
+			var note_id = req.params.id
+			Notes.findByIdAndUpdate({_id:note_id},saveData).exec(function(err,data){
+				if(err){
+					commonFunctions.setFatalError(err,function (response) {
+						return res.status(response.status).json(response);
+					});
+				}else{
+					commonFunctions.setSuccess({}, 'Data updated Successfully',function (response) {
+						return res.status(response.status).json(response);
+					});
+				}
+			})
+		}else {
+			commonFunctions.setValidationError(mappedErrors, function (response) {
+				res.status(response.status).json(response);
+			});
+		}
+	}catch(e){
+		commonFunctions.setFatalError(e,function (response) {
+			return res.status(response.status).json(response);
+		});
+	}
+}
+
+exports.deleteNotes= function(req,res){	
+	try{
+		var mappedErrors = {};
+		if (req.body != "") {
+			req.checkParams('id', 'Note Id is required').notEmpty();
+			mappedErrors = req.validationErrors(true);
+		}
+		if (mappedErrors == false) {
+			var note_id = req.params.id
+			Notes.findByIdAndRemove({_id:note_id}).exec(function(err,data){
+				if(err){
+					commonFunctions.setFatalError(err,function (response) {
+						return res.status(response.status).json(response);
+					});
+				}else{
+					commonFunctions.setSuccess({}, 'Data deleted Successfully',function (response) {
+						return res.status(response.status).json(response);
+					});
+				}
+			})
+		}else {
+			commonFunctions.setValidationError(mappedErrors, function (response) {
+				res.status(response.status).json(response);
+			});
+		}
+	}catch(e){
+		commonFunctions.setFatalError(e,function (response) {
+			return res.status(response.status).json(response);
+		});
+	}
 }

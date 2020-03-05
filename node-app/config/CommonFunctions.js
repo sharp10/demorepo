@@ -22,14 +22,77 @@ exports.decrypt = function (data) {
 	return decrypted;
 }
 
-exports.logError = function (message) {
-	console.log("message",message);
-}
+/**
+ * @description this will make error json error object with params and messages object
+ * @param errors
+ * @param callback
+ * @author pratik shah
+ */
+exports.setValidationError = function (errors, callback) {
+    var err = [];
+    var errorsObject = Object.keys(errors).map(function (obj) {
+        var errObj = errors[obj];
+        delete errObj.location;
+        delete errObj.value;
+        if (typeof errObj.msg != 'undefined') {
+            errObj.message = errObj.msg;
+            delete errObj.msg;
+        }
+        err.push(errObj);
+    });
+    return callback({
+        status: 412,
+        message: 'Validation failed',
+        error: err,
+    });
+};
+/**
+ * @description Seeting a fatal error response catch error response
+ * @param errors
+ * @param callback
+ * @author pratik shah
+ */
+exports.setFatalError = function (errors, callback) {
+    var error = [
+        {
+            params: errors.name,
+            message: errors.message
+        }
+    ];
+    return callback({
+        status: 500,
+        error: error,
+        message: 'There is some problem please try again later'
+    });
+};
+/**
+ * @description Seeting a success response
+ * @param data
+ * @param message
+ * @param callback
+ * @author pratik shah
+ */
+exports.setSuccess = function (data, message, callback) {
+    return callback({
+        status: 200,
+        data: data,
+        message: message
+    });
+};
 
-exports.logErrorAndSend = function (message, res) {
-	console.log("message",message);
-	mod_self.sendResults(res, false, null, "An error has occurred. If it persists, contact the developers");
-}
+/**
+ * @description Seeting a auth error
+ * @param error
+ * @param callback
+ * @author pratik shah
+ */
+exports.setAuthFailedError = function (error, callback) {
+    return callback({
+        status: 401,
+        error: error,
+        message:'Authentication Failed'
+    });
+};
 
 exports.authenticate = function(plainText, hashedPassword) {
     return this.encryptPassword(plainText, key) === hashedPassword;

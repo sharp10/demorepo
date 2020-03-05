@@ -1,0 +1,46 @@
+<app-header></app-header>
+<div class="container">
+    <div class="row">
+      <div class="col-md-4 mb-4">
+        <ul class="list-group mb-3">
+          <li class="list-group-item d-flex justify-content-between lh-condensed" *ngFor="let notes of noteList">
+            <div class="pointer-cursor"(click)="getNotesDetail(notes)" >
+              <h6 class="my-0">{{notes.title}}</h6>
+              <small class="text-muted">{{notes.description}}</small>
+            </div>
+            <span class="text-muted pointer-cursor" (click)="deleteNotes(notes._id)"><i class="fa fa-close"></i></span>
+          </li>
+        </ul>
+      </div>
+      <div class="col-md-8">
+        <!-- <h4 class="mb-3">Notes</h4> -->
+        <div class="col-md-12 mb-4">
+            <div class="row right-float">
+                <button class="btn btn-primary btn-white" (click)="addForm();"><i class="fa fa-plus"></i>  Add Notes</button>
+            </div>
+        </div>
+        
+        <div class="col-md-12" *ngIf="showAddFrom">
+            <form [formGroup]="notesForm" (ngSubmit)="saveNotes()">
+                <div class="row mb-4">
+                    <div class="col-md-12  mb-4">
+                      <label for="title">Title</label>
+                      <input type="text" class="form-control" id="title" placeholder="" value="" required
+                        [(ngModel)]="notesModel.title" formControlName="title" [formGroup]="notesForm">
+                      <div *ngIf="notesForm.controls.title.touched" class="invalid-feedback">
+                        <span class="help-block has-error color-red" *ngIf="notesForm.controls.title.errors?.required">title is required.</span>
+                      </div>
+                    </div>
+                    <div class="col-md-12  mb-4">
+                      <label for="description">Description</label>
+                      <textarea id="description" class="form-control" rows="10" [(ngModel)]="notesModel.description" formControlName="description" [formGroup]="notesForm"></textarea>
+                    </div>
+                    <div class="col-md-12">
+                      <button class="btn btn-primary btn-lg btn-block" type="submit">Save Notes</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+      </div>
+    </div>
+  </div>
