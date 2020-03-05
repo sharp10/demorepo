@@ -5,13 +5,6 @@ var jwt_decoder = require('jwt-decode'); // for parsing token from frontend
 
 var Users = require('./model/Users.js');
 
-
-/*
-    Author: Joey Koblitz
-    Description: Checks whether or not a user is valid before passing on the request to the route
-    Input: Request
-    Output: Sets res.locals.user_id if successful and calls next()
-*/
 function validUser(req, res, next) {
 	try {
 		if(req.method !="OPTIONS"){
